@@ -1,8 +1,8 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { R as require_jsx_runtime } from "../_libs/@tanstack/react-router+[...].mjs";
-import { t as Badge } from "./badge-BKiI4iGl.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/fidelity-DMmJPsAs.js
+import { t as Badge } from "./badge-DVdOTbBI.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/fidelity-DSs4NYYY.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function FidelityPage() {
@@ -14,7 +14,7 @@ function FidelityPage() {
 		{
 			name: "moka-tiny FP32",
 			...data.fidelity_fp32,
-			default: "yes"
+			default: "distilled, not Laya"
 		},
 		{
 			name: "moka-tiny INT8",
@@ -22,7 +22,7 @@ function FidelityPage() {
 			default: "no"
 		},
 		{
-			name: "laya 421M",
+			name: "models/typed 421M",
 			matched: 0,
 			total: 0,
 			max_probability_drift: 0,
@@ -30,7 +30,29 @@ function FidelityPage() {
 			stable: false,
 			max_drift_budget: 1e-4,
 			precision: "fp32",
-			default: "not converted (RAM)"
+			default: "refused, RAM"
+		},
+		{
+			name: "models/english 421M",
+			matched: 0,
+			total: 0,
+			max_probability_drift: 0,
+			passed: false,
+			stable: false,
+			max_drift_budget: 1e-4,
+			precision: "fp32",
+			default: "refused, RAM"
+		},
+		{
+			name: "models/multi 322M",
+			matched: 0,
+			total: 0,
+			max_probability_drift: 0,
+			passed: false,
+			stable: false,
+			max_drift_budget: 1e-4,
+			precision: "fp32",
+			default: "refused, RAM"
 		}
 	] : [];
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("main", {
@@ -106,7 +128,7 @@ function FidelityPage() {
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", {
 								className: "px-3 py-2",
-								children: row.name.includes("421M") ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, { children: "not run" }) : row.passed ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
+								children: row.total === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, { children: "not run" }) : row.passed ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {
 									tone: "ok",
 									children: "passed"
 								}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Badge, {

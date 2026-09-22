@@ -5,7 +5,7 @@ import { n as clsx } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as TriangleAlert } from "../_libs/lucide-react.mjs";
 import { a as union, i as string, n as number, r as object, t as literal } from "../_libs/zod.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CWvcnj1Z.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-DyMgKPBA.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var __defProp = Object.defineProperty;
@@ -438,17 +438,17 @@ var Route$6 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$5 = () => import("./routes-CCXm7kSi.mjs");
+var $$splitComponentImporter$5 = () => import("./routes-D0ptbuFd.mjs");
 var Route$5 = createFileRoute("/")({ component: lazyRouteComponent($$splitComponentImporter$5, "component") });
-var $$splitComponentImporter$4 = () => import("./benchmarks-DRMcRHuZ.mjs");
+var $$splitComponentImporter$4 = () => import("./benchmarks-BzTbphHb.mjs");
 var Route$4 = createFileRoute("/benchmarks")({ component: lazyRouteComponent($$splitComponentImporter$4, "component") });
-var $$splitComponentImporter$3 = () => import("./convert-DXQft_r_.mjs");
+var $$splitComponentImporter$3 = () => import("./convert-DJBle_uo.mjs");
 var Route$3 = createFileRoute("/convert")({ component: lazyRouteComponent($$splitComponentImporter$3, "component") });
-var $$splitComponentImporter$2 = () => import("./fidelity-DMmJPsAs.mjs");
+var $$splitComponentImporter$2 = () => import("./fidelity-DSs4NYYY.mjs");
 var Route$2 = createFileRoute("/fidelity")({ component: lazyRouteComponent($$splitComponentImporter$2, "component") });
-var $$splitComponentImporter$1 = () => import("./playground-DlxgPWI_.mjs");
+var $$splitComponentImporter$1 = () => import("./playground-DolR9hCE.mjs");
 var Route$1 = createFileRoute("/playground")({ component: lazyRouteComponent($$splitComponentImporter$1, "component") });
-var $$splitComponentImporter = () => import("./snake-BLmCbckT.mjs");
+var $$splitComponentImporter = () => import("./snake-DY05kT9r.mjs");
 var Route = createFileRoute("/snake")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 var rootRouteChildren = {
 	IndexRoute: Route$5.update({

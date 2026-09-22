@@ -3,6 +3,15 @@
 import json
 from pathlib import Path
 
+# Quoted from laya-mlx README at fc1df628. The distilled suite must not replace this
+# with ASCII and then report a "zh" pass.
+LAYA_MLX_ZH_REFUND = "发票被重复扣款，请退款。"
+
+# These parity_cases() rows are English text under a language name. moka-tiny's
+# word-level vocab cannot represent the scripts, so the stand-ins exist only for
+# the distilled graph test. Hub validation uses hub_parity_cases() for zh.
+STUDENT_ASCII_STANDINS = ("zh", "de", "fr", "es", "hi", "ja", "ru")
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -71,3 +80,20 @@ def parity_cases():
         ]
     )
     return cases
+
+
+def hub_parity_cases():
+    """Fixtures for an official Hub checkpoint.
+
+    The Chinese refund line is the laya-mlx string, not the ASCII stand-in used
+    by the distilled suite. Other language codes in parity_cases() were already
+    English in this repo; they are left as-is and listed in STUDENT_ASCII_STANDINS
+    rather than invented into fake upstream goldens.
+    """
+    restored = []
+    for name, state, questions in parity_cases():
+        if name == "zh":
+            restored.append(("zh", {"message": LAYA_MLX_ZH_REFUND}, questions))
+        else:
+            restored.append((name, state, questions))
+    return restored

@@ -2,6 +2,16 @@
 
 **Open-weight typed decisions on Linux. ONNX Runtime, no generated tokens.**
 
+Independent community port of the Laya **runtime**, not a new model family.
+No training. No renamed Hub weights. `predict()` still returns choice, score,
+and noul with calibrated probabilities and `output_tokens = 0`.
+
+**This machine did not convert the official checkpoints.** MemAvailable was
+about 3.2 GiB with no swap; a 421M FP32 export needs 6.71 GiB free before
+any tensor is allocated. `models/typed`, `models/english`, and `models/multi`
+were not created, and `moka-tiny` is not a stand-in for them. The exact
+commands, with RAM and disk, are in [docs/RELEASE.md](docs/RELEASE.md).
+
 A Linux-native inference backend for the [Laya](https://huggingface.co/convaiinnovations/laya)
 typed-decision models — the same role [laya-coreml](https://github.com/mizorewww/laya-coreml)
 plays on Apple Silicon. Core ML and the Apple Neural Engine do not exist here.

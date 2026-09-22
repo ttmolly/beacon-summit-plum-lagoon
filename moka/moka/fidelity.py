@@ -20,10 +20,81 @@ def _softmax(z):
     return p / p.sum()
 
 
-def _cases():
-    from . import cases
+def _bundle_is_distilled(bundle: Path) -> bool:
+    config_path = bundle / "encoder" / "config.json"
+    if not config_path.is_file():
+        return False
+    hidden = json.loads(config_path.read_text()).get("hidden_size") or 0
+    # Official Laya encoders are ModernBERT-large (1024) or mmBERT-base (768).
+    return int(hidden) < 256
 
-    return cases.parity_cases()
+
+class OfficialLayaUnavailable(RuntimeError):
+    """pip install laya is missing, or this bundle is not an official checkpoint."""
+
+
+def compare_official_laya(bundle, *, max_drift=None, cases=None, laya_source=None):
+    """Selected answers and calibrated probabilities vs `pip install laya`.
+
+    `laya_source` is a local snapshot of the pinned revision when you have one.
+    Otherwise the Hub id recorded in the bundle is passed to `laya.load`, which
+    follows that package's own revision resolution (not necessarily Moka's pin).
+    """
+    from .agent import load
+    from .cases import hub_parity_cases
+
+    bundle = Path(bundle)
+    manifest = json.loads((bundle / "moka_config.json").read_text())
+    if _bundle_is_distilled(bundle):
+        raise OfficialLayaUnavailable(
+            "This bundle is a distilled reference model, not Laya. "
+            "Official answer parity applies to models/typed, models/english, and models/multi "
+            "converted from convaiinnovations checkpoints. Refusing to compare moka-tiny to `laya`."
+        )
+    try:
+        import laya
+    except ImportError as exc:
+        raise OfficialLayaUnavailable(
+            "Official answer parity needs `pip install laya` (Transformers + PyTorch). "
+            "`import moka` does not import torch; this comparison does, on purpose."
+        ) from exc
+
+    source = laya_source or manifest.get("source") or "convaiinnovations/laya"
+    if laya_source is None and manifest.get("source") and "/" not in str(manifest["source"]):
+        if not Path(str(manifest["source"])).is_dir():
+            source = "convaiinnovations/" + str(manifest["source"])
+    official = laya.load(str(source))
+    agent = load(bundle, provider="cpu", deterministic=True, local_files_only=True)
+    precision = manifest.get("precision", "fp32")
+    budget = DEFAULT_MAX_DRIFT.get(precision, 0.02) if max_drift is None else max_drift
+    if cases is None:
+        cases = hub_parity_cases()
+    matched = total = 0
+    max_seen = 0.0
+    rows = []
+    for name, state, questions in cases:
+        left = official.predict(state, questions)
+        right = agent.predict(state, questions)
+        hit, n, drift, details = compare_answers(left, right, budget)
+        matched += hit
+        total += n
+        max_seen = max(max_seen, drift)
+        rows.append({"name": name, "matched": hit, "total": n, "drift": drift, "details": details})
+    return {
+        "compared_to": "laya",
+        "laya_source": str(source),
+        "bundle_revision": manifest.get("revision"),
+        "matched": matched,
+        "total": total,
+        "max_probability_drift": max_seen,
+        "max_drift_budget": budget,
+        "passed": matched == total and max_seen <= budget,
+        "cases": rows,
+        "note": (
+            "Selected-answer match plus calibrated probability drift versus official laya.predict. "
+            "Not a latency claim."
+        ),
+    }
 
 
 def _pytorch_logits(model, batch):
@@ -66,18 +137,20 @@ def compare_answers(reference, candidate, max_drift):
 def validate_bundle(bundle, *, reference=None, max_drift=None, repeats=20, cases=None):
     """Run the shipped fixtures through Moka and, when possible, the PyTorch graph."""
     from .agent import load
+    from .cases import STUDENT_ASCII_STANDINS, hub_parity_cases, parity_cases
     from .convert import FORMAT
 
     bundle = Path(bundle)
     manifest = json.loads((bundle / "moka_config.json").read_text())
     if manifest.get("format") != FORMAT:
         raise ValueError("Not a Moka bundle")
+    distilled = _bundle_is_distilled(bundle)
     precision = manifest.get("precision", "fp32")
     budget = DEFAULT_MAX_DRIFT.get(precision, 0.02) if max_drift is None else max_drift
     agent = load(bundle, provider="cpu", deterministic=True, local_files_only=True)
 
     if cases is None:
-        cases = _cases()
+        cases = parity_cases() if distilled else hub_parity_cases()
 
     pytorch_model = None
     if reference is not None:
@@ -162,6 +235,10 @@ def validate_bundle(bundle, *, reference=None, max_drift=None, repeats=20, cases
         "repeated_calls": repeats,
         "stable": stable,
         "passed": passed,
+        "fixture_scope": "distilled reference model, not Laya" if distilled else "official-hub-fixtures",
+        "distilled_reference_not_laya": distilled,
+        "student_ascii_standins": list(STUDENT_ASCII_STANDINS) if distilled else [],
+        "hub_zh_fixture": None if distilled else "发票被重复扣款，请退款。",
         "hardware_note": "Compared against the export-graph PyTorch reference on this host.",
         "cases": [
             {

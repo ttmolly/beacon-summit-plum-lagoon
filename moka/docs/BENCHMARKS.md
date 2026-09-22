@@ -1,8 +1,7 @@
 # Benchmarks
 
-Numbers on this page are **measured on the conversion host** or explicitly
-marked as not measured. Nothing here is an estimate of ANE, M3 Max, or a
-T4 GPU.
+Numbers below are **measured on the named host** or explicitly marked not
+measured. Nothing here is an estimate of ANE, M3 Max, or a T4.
 
 ## Host
 
@@ -10,13 +9,61 @@ T4 GPU.
 | --- | --- |
 | CPU | Intel Xeon Platinum 8481C @ 2.70 GHz |
 | Cores | 2 |
-| RAM | ~4 GiB |
-| GPU | none (no NVIDIA device, no nvidia-smi) |
+| RAM | MemTotal 3.84 GiB, MemAvailable ~3.2 GiB, swap 0 |
+| GPU | none (`nvidia-smi` absent) |
 | OS | Linux x86_64 |
 | Python | 3.10 |
-| ONNX Runtime | 1.23.2 (CPU Execution Provider) |
-| PyTorch | 2.14.0+cpu (baseline only) |
+| ONNX Runtime | 1.23.2 (CPU Execution Provider only) |
+| PyTorch | 2.14.0+cpu, used for conversion attempts and the distilled baseline only |
 | Energy | RAPL sysfs not readable; no figure is reported |
+
+## Official Laya — not measured
+
+`models/typed`, `models/english`, and `models/multi` do not exist on this
+host. The table the runtime is supposed to fill in, once those bundles exist:
+
+| Implementation | P50 batch 1 | P95 batch 1 | decisions/s | Peak RSS | Import `moka` | Bundle bytes vs Hub safetensors |
+| --- | --- | --- | --- | --- | --- | --- |
+| official `laya` / PyTorch (`pip install laya`) | not measured | not measured | not measured | not measured | imports torch | Hub file itself |
+| Moka ORT CPU FP32 | not measured | not measured | not measured | not measured | must not import torch | not measured |
+| Moka ORT CUDA | no GPU | — | — | — | — | — |
+| Moka ORT INT8 | not a default unless fidelity `passed: true` | — | — | — | — | — |
+
+Batch-1 is the real `predict()` shape. A second row with `--questions 8` is
+the small batched run, also not measured here. If ORT CPU lands within noise
+of official PyTorch, write that. Do not invent a 10×.
+
+File sizes that **are** known, because they are the Hub blobs (not Moka
+bundles): typed 842,609,220 bytes, english 842,609,210 bytes, multilingual
+643,835,514 bytes, all FP16 safetensors. The FP32 ONNX will be larger. That
+size is not measured until a convert finishes.
+
+Commands that produce the missing rows are in [RELEASE.md](RELEASE.md).
+
+## Distilled reference model, not Laya
+
+Host as above. Graph is `moka-tiny` (hidden 64, 4 layers), **not** a
+convaiinnovations checkpoint. 40 measured calls after 8 warmup.
+JSON: `benchmarks/results/`.
+
+| Implementation | P50 | P95 | decisions/s |
+| --- | ---: | ---: | ---: |
+| PyTorch eager `DecisionModel` forward (student) | 2.97 ms | 3.60 ms | 324 |
+| ORT CPU FP32 (student) | 2.45 ms | 2.67 ms | 407 |
+
+Speedup vs eager on this student: **1.21×**. Not a Laya number. Not 10×.
+
+`import moka` in a fresh process does not import torch or transformers.
+Measured on this host: **0.065 s**, RSS **27 MiB** (28,184,576 bytes). Loading
+`moka-tiny` on CPU EP then one `predict` peaked at **57 MiB** RSS
+(VmHWM 59,600,896 bytes after the call). That is the student graph, about
+1.3 MB of ONNX, not a 421M checkpoint.
+
+Energy: RAPL unread; nvidia-smi absent. `energy.available = false`.
+
+Snake on the student (headless, 180 steps, seed 7, 12×8): score 13, 6 shield
+interventions, 233 decisions/s including inference. Not a Laya policy claim.
+JSON: `benchmarks/results/snake-tiny.json`.
 
 ## Methodology
 
@@ -30,28 +77,6 @@ T4 GPU.
 - Energy: RAPL `energy_uj` is the planned CPU sensor. It was **not
   readable** on this host. nvidia-smi was **not present**. The JSON records
   `energy.available = false` and a reason instead of a made-up joule.
-
-## Results
-
-Host: Intel Xeon Platinum 8481C @ 2.70 GHz, 2 cores, ~4 GiB RAM, no GPU.
-ONNX Runtime 1.23.2 CPU EP. Tiny student graph (`moka-tiny`, hidden 64, 4 layers).
-40 measured calls after 8 warmup. JSON: `benchmarks/results/`.
-
-| Implementation | P50 | P95 | decisions/s |
-| --- | ---: | ---: | ---: |
-| PyTorch eager `DecisionModel` forward | 2.97 ms | 3.60 ms | 324 |
-| **ORT CPU FP32 (Moka)** | **2.45 ms** | **2.67 ms** | **407** |
-
-Speedup vs eager: **1.21×**. Not 10×. The student is small enough that Python
-overhead dominates; ORT still wins, and the win is the compiled graph plus
-the fact that inference no longer imports PyTorch.
-
-Energy: RAPL unread; nvidia-smi absent. `energy.available = false`.
-
-Snake (headless, 180 steps, seed 7, 12×8): score 13, 6 shield interventions,
-233 decisions/s including inference, still alive. JSON:
-`benchmarks/results/snake-tiny.json`.
-
 
 ## Comparison contract
 

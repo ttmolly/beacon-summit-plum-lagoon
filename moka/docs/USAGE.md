@@ -85,19 +85,30 @@ bucket at load.
 ```bash
 moka convert <source> <output-dir> [--precision fp32|fp16] [--quantize int8]
 moka predict <bundle> --state "..." --questions questions.json
-moka validate <bundle> --reference <original-checkpoint>
+moka validate <bundle> --reference <original-checkpoint> [--laya <snapshot>]
 moka benchmark <bundle> --runs 100 --questions 1
 moka-snake --model <bundle> --headless --steps 200 --record snake.json
 ```
 
 `--offline` / `local_files_only=True` refuses Hub access.
+`--laya` also compares selected answers to `pip install laya` (that package
+imports torch; `import moka` does not).
 
 ## Convert from source
 
+Official 421M/322M conversion needs about 6.7 GiB MemAvailable for the large
+checkpoints and 20 GiB free disk for all three. This host does not have that.
+The commands below are the ones to run where it does. Full pins, snapshot
+paths, and the batch-1 plus batch-8 benchmark rows are in
+[RELEASE.md](RELEASE.md). `models/typed`, `models/english`, and `models/multi`
+are refused if the source is not the matching Hub safetensors.
+
 ```bash
 pip install 'moka[convert]'
-moka convert convaiinnovations/laya-typed-decisions models/typed
-moka convert laya-multilingual models/multi --max-length 96
+moka convert laya-typed-decisions models/typed
+moka convert laya models/english
+moka convert laya-multilingual models/multi
+# approximate, and not a default unless validate prints "passed": true
 moka convert laya models/english-int8 --quantize int8
 ```
 

@@ -1,7 +1,7 @@
 import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { R as require_jsx_runtime } from "../_libs/@tanstack/react-router+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/convert-DXQft_r_.js
+//#region node_modules/.nitro/vite/services/ssr/assets/convert-DJBle_uo.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function ConvertPage() {
@@ -21,20 +21,27 @@ function ConvertPage() {
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 						className: "font-display text-3xl tracking-tight",
-						children: "From Laya safetensors to an ONNX bundle"
+						children: "Official weights, or a refusal"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 						className: "max-w-2xl text-sm leading-relaxed text-muted",
-						children: "The converter loads original checkpoints into an export-only ModernBERT graph (state-dict names unchanged), writes ONNX, and records checksums plus the upstream revision. Inference never imports Transformers."
+						children: "The converter loads original Laya safetensors into an export-only graph and writes a self-contained ONNX bundle. On this host it stops first. MemAvailable was about 3.2 GiB, swap was 0, and a 421M FP32 export needs 6.71 GiB free. No file was written to models/typed, models/english, or models/multi."
 					})
 				]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("pre", {
 				className: "overflow-x-auto rounded-lg border border-border bg-bg-elevated p-4 font-mono text-xs leading-relaxed text-accent",
-				children: `pip install 'moka[convert]'
-moka convert convaiinnovations/laya-typed-decisions models/typed
-moka convert laya-multilingual models/multi --max-length 96
-moka convert laya models/english-int8 --quantize int8   # approximate, gated`
+				children: `# Needs >= 8 GiB MemAvailable (16 GiB RAM recommended) and 20 GiB free disk for all three.
+pip install 'moka[convert]'
+pip install laya   # only for the official predict() column
+
+moka convert laya-typed-decisions models/typed
+moka convert laya models/english
+moka convert laya-multilingual models/multi
+
+moka validate models/typed --reference "$SNAP_TYPED" --laya "$SNAP_TYPED"
+moka benchmark models/typed --runs 100 --questions 1
+moka benchmark models/typed --runs 50 --questions 8`
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 				className: "grid gap-4 sm:grid-cols-2",
@@ -51,10 +58,10 @@ moka convert laya models/english-int8 --quantize int8   # approximate, gated`
 					className: "rounded-lg border border-border bg-surface p-4",
 					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 						className: "font-medium",
-						children: "What did not ship"
+						children: "Refused on this host"
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 						className: "mt-2 text-sm leading-relaxed text-muted",
-						children: "421M/322M Hub conversion did not fit in 4 GiB RAM on this host. INT8 missed the answer-match gate. TensorRT is never implicit. OpenVINO was not installed."
+						children: "typed and english are 842 MB FP16 each (421,293,830 params). multilingual is 644 MB (321,908,998). The command exits 2 before the download. moka-tiny is not allowed under those names. INT8 is not a default. TensorRT is never implicit."
 					})]
 				})]
 			}),

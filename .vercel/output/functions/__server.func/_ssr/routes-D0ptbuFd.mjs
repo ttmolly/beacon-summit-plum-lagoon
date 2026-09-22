@@ -2,9 +2,9 @@ import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { R as require_jsx_runtime, v as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { a as CircleX, i as Cpu, n as ShieldCheck, o as ArrowRight, r as Gauge } from "../_libs/lucide-react.mjs";
-import { t as Badge } from "./badge-BKiI4iGl.mjs";
-import { t as Button } from "./button-CJSwB56r.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CCXm7kSi.js
+import { t as Badge } from "./badge-DVdOTbBI.mjs";
+import { t as Button } from "./button-BdSii95N.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-D0ptbuFd.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function Home() {
@@ -26,18 +26,11 @@ function Home() {
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 							className: "max-w-xl font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl",
-							children: "Typed decisions on Linux, without the Neural Engine."
+							children: "Same Laya answers. No PyTorch at inference."
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "max-w-xl text-base leading-relaxed text-muted",
-							children: [
-								"Moka is the Linux analogue of laya-coreml: an export graph, an ONNX Runtime backend, a drift-gated fidelity harness, and a Snake demo driven by live probabilities. It is not ",
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-									className: "font-mono text-sm text-fg",
-									children: "transformers.predict()"
-								}),
-								"."
-							]
+							children: "Moka converts official Laya checkpoints to ONNX Runtime. It does not train a new model and it does not rename Hub weights. This machine refused the 421M and 322M exports: about 3.2 GiB free, no swap, 6.71 GiB required. The studio graph is a distilled reference, not Laya."
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 							className: "flex flex-wrap gap-3",
@@ -62,7 +55,7 @@ function Home() {
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "text-xs uppercase tracking-[0.18em] text-muted",
-							children: "Measured on this host"
+							children: "Distilled reference, not Laya"
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("dl", {
 							className: "mt-4 grid grid-cols-2 gap-4",
@@ -72,28 +65,23 @@ function Home() {
 									value: data ? `${data.latency_ort.p50_ms.toFixed(2)} ms` : "—"
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
-									label: "vs PyTorch",
+									label: "vs own PyTorch",
 									value: data ? `${data.speedup_vs_pytorch.toFixed(2)}×` : "—"
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
-									label: "FP32 fidelity",
+									label: "Student fidelity",
 									value: data ? `${data.fidelity_fp32.matched}/${data.fidelity_fp32.total}` : "—"
 								}),
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Stat, {
-									label: "INT8 default",
+									label: "421M bundles",
 									value: "refused",
 									warn: true
 								})
 							]
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "mt-4 text-xs leading-relaxed text-subtle",
-							children: [
-								data?.host.cpu,
-								", ",
-								data?.host.cores,
-								" cores, no GPU. The 1.21× is real. The requested 10× was not achieved — and was not claimed."
-							]
+							children: "moka-tiny, hidden 64. The 1.21× is this student versus its own eager graph, not a win over official Laya. Hub conversion did not run."
 						})
 					]
 				})]
@@ -109,7 +97,7 @@ function Home() {
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Note, {
 						icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ShieldCheck, { className: "size-4" }),
 						title: "Drift-gated, not vibes",
-						body: "FP32 matched 43/43 with 0.0 max calibrated drift. INT8 matched 41/43 — labelled approximate, not shipped as default."
+						body: "FP32 matched 43/43 on the distilled student, drift 0.0. That is not Laya parity. INT8 matched 41/43 and is not a default."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Note, {
 						icon: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Gauge, { className: "size-4" }),

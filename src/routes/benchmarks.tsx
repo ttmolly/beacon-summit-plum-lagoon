@@ -33,11 +33,12 @@ function BenchmarksPage() {
     <main className="space-y-8">
       <header className="space-y-2">
         <p className="text-xs uppercase tracking-[0.22em] text-muted">Benchmarks</p>
-        <h1 className="font-display text-3xl tracking-tight">Measured, not estimated</h1>
+        <h1 className="font-display text-3xl tracking-tight">Official rows are empty</h1>
         <p className="max-w-2xl text-sm leading-relaxed text-muted">
+          The chart is moka-tiny, a distilled reference model, not Laya. Official laya versus Moka
+          ORT CPU was not measured: the 421M and 322M bundles were refused on this host (
           {data?.host.cpu}, {data?.host.cores} cores, {(data ? data.host.ram_bytes / 1e9 : 0).toFixed(1)}{" "}
-          GB RAM, GPU none. Python {data?.host.python}, ONNX Runtime {data?.onnxruntime}. Wall time
-          includes prompt, tokenize, session.run, calibration. Warmup excluded.
+          GB RAM, no GPU, no swap). CUDA was not present. INT8 is not a default.
         </p>
       </header>
       <div className="h-64 rounded-lg border border-border bg-surface p-3">
@@ -47,7 +48,11 @@ function BenchmarksPage() {
             <XAxis dataKey="name" stroke="#9c9288" fontSize={12} />
             <YAxis stroke="#9c9288" fontSize={12} unit=" ms" />
             <Tooltip
-              contentStyle={{ background: "#171412", border: "1px solid rgba(242,235,228,0.12)", color: "#f2ebe4" }}
+              contentStyle={{
+                background: "#171412",
+                border: "1px solid rgba(242,235,228,0.12)",
+                color: "#f2ebe4",
+              }}
             />
             <Bar dataKey="p50" fill="#d9cfc4" name="P50 ms" radius={[4, 4, 0, 0]} />
             <Bar dataKey="p95" fill="#c17a4a" name="P95 ms" radius={[4, 4, 0, 0]} />
@@ -56,9 +61,12 @@ function BenchmarksPage() {
       </div>
       {data && (
         <section className="grid gap-3 sm:grid-cols-3">
-          <Metric label="ORT P50 / P95" value={`${data.latency_ort.p50_ms.toFixed(2)} / ${data.latency_ort.p95_ms.toFixed(2)} ms`} />
-          <Metric label="Speedup vs eager" value={`${data.speedup_vs_pytorch.toFixed(2)}×`} />
-          <Metric label="ORT decisions/s" value={data.latency_ort.decisions_per_sec.toFixed(0)} />
+          <Metric
+            label="Student ORT P50 / P95"
+            value={`${data.latency_ort.p50_ms.toFixed(2)} / ${data.latency_ort.p95_ms.toFixed(2)} ms`}
+          />
+          <Metric label="vs own eager" value={`${data.speedup_vs_pytorch.toFixed(2)}×`} />
+          <Metric label="Student decisions/s" value={data.latency_ort.decisions_per_sec.toFixed(0)} />
         </section>
       )}
       <article className="rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-muted">
@@ -67,17 +75,17 @@ function BenchmarksPage() {
       </article>
       {data && (
         <article className="rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-muted">
-          <h2 className="font-medium text-fg">Snake loop</h2>
+          <h2 className="font-medium text-fg">Snake loop (student)</h2>
           <p className="mt-2">
             Headless 180 steps, score {data.snake.score}, {data.snake.interventions} safety
-            interventions, {data.snake.decisions_per_sec.toFixed(1)} decisions/s including
-            inference. Terminal painting excluded.
+            interventions, {data.snake.decisions_per_sec.toFixed(1)} decisions/s including inference.
+            Terminal painting excluded. Not a Laya policy claim.
           </p>
         </article>
       )}
       <p className="text-xs text-subtle">
-        Tiny student graph. A 421M number from this box would be fiction — the conversion did
-        not fit in RAM. See docs/BENCHMARKS.md in the package.
+        Official batch-1 P50, RSS, and bundle size versus Hub safetensors are blank until models/typed
+        and models/english exist. Those directories were not created here.
       </p>
     </main>
   );

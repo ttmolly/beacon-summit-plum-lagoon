@@ -33,12 +33,13 @@ function Home() {
         <div className="space-y-5">
           <p className="text-xs uppercase tracking-[0.22em] text-muted">Independent Linux port</p>
           <h1 className="max-w-xl font-display text-4xl leading-[1.05] tracking-tight sm:text-5xl">
-            Typed decisions on Linux, without the Neural Engine.
+            Same Laya answers. No PyTorch at inference.
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-muted">
-            Moka is the Linux analogue of laya-coreml: an export graph, an ONNX Runtime
-            backend, a drift-gated fidelity harness, and a Snake demo driven by live
-            probabilities. It is not <span className="font-mono text-sm text-fg">transformers.predict()</span>.
+            Moka converts official Laya checkpoints to ONNX Runtime. It does not train a new
+            model and it does not rename Hub weights. This machine refused the 421M and 322M
+            exports: about 3.2 GiB free, no swap, 6.71 GiB required. The studio graph is a
+            distilled reference, not Laya.
           </p>
           <div className="flex flex-wrap gap-3">
             <Button asChild>
@@ -52,19 +53,19 @@ function Home() {
           </div>
         </div>
         <aside className="rounded-xl border border-border bg-surface p-5 shadow-soft">
-          <p className="text-xs uppercase tracking-[0.18em] text-muted">Measured on this host</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-muted">Distilled reference, not Laya</p>
           <dl className="mt-4 grid grid-cols-2 gap-4">
             <Stat label="ORT P50" value={data ? `${data.latency_ort.p50_ms.toFixed(2)} ms` : "—"} />
-            <Stat label="vs PyTorch" value={data ? `${data.speedup_vs_pytorch.toFixed(2)}×` : "—"} />
+            <Stat label="vs own PyTorch" value={data ? `${data.speedup_vs_pytorch.toFixed(2)}×` : "—"} />
             <Stat
-              label="FP32 fidelity"
+              label="Student fidelity"
               value={data ? `${data.fidelity_fp32.matched}/${data.fidelity_fp32.total}` : "—"}
             />
-            <Stat label="INT8 default" value="refused" warn />
+            <Stat label="421M bundles" value="refused" warn />
           </dl>
           <p className="mt-4 text-xs leading-relaxed text-subtle">
-            {data?.host.cpu}, {data?.host.cores} cores, no GPU. The 1.21× is real. The requested
-            10× was not achieved — and was not claimed.
+            moka-tiny, hidden 64. The 1.21× is this student versus its own eager graph, not a
+            win over official Laya. Hub conversion did not run.
           </p>
         </aside>
       </section>
@@ -78,7 +79,7 @@ function Home() {
         <Note
           icon={<ShieldCheck className="size-4" />}
           title="Drift-gated, not vibes"
-          body="FP32 matched 43/43 with 0.0 max calibrated drift. INT8 matched 41/43 — labelled approximate, not shipped as default."
+          body="FP32 matched 43/43 on the distilled student, drift 0.0. That is not Laya parity. INT8 matched 41/43 and is not a default."
         />
         <Note
           icon={<Gauge className="size-4" />}

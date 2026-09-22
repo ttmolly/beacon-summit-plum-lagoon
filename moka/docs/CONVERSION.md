@@ -57,11 +57,15 @@ FP16 is therefore not the CPU default. It remains available for CUDA hosts.
 
 These are observations on this machine, not claims about every ORT version.
 
-1. **Full Hub conversion did not run here.** ModernBERT-large (421M) and
-   mmBERT-base (322M) safetensors plus PyTorch plus ONNX export exceed the
-   ~4 GiB RAM of the conversion host. That is a hardware limit, not a graph
-   limit. The CLI is written for those checkpoints; CI proves the graph on
-   `moka-tiny`.
+1. **Full Hub conversion did not run here, and it was not faked.**
+   `laya` and `laya-typed-decisions` are 421,293,830 params, FP16 safetensors
+   of 842,609,210 and 842,609,220 bytes. `laya-multilingual` is 321,908,998
+   params, 643,835,514 bytes. The refusal threshold is 3× the FP32 weight
+   bytes plus 2 GiB (6.71 GiB and 5.60 GiB MemAvailable). This host had
+   ~3.2 GiB available and no swap. `moka convert` exits 2 before the
+   download. CI still proves the export graph on `moka-tiny`, which is a
+   distilled reference model, not Laya, and is not written to `models/typed`
+   or `models/english`.
 2. **RAPL energy counters were unreadable** (`intel-rapl` sysfs absent or
    permission denied). nvidia-smi is absent. Energy per decision is therefore
    **not reported**, with the reason attached to the benchmark JSON, instead

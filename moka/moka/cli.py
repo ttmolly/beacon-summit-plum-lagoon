@@ -43,6 +43,8 @@ def main(argv=None):
     validate.add_argument("--reference", help="Original Laya checkpoint directory")
     validate.add_argument("--max-drift", type=float, default=0.02)
     validate.add_argument("--repeats", type=int, default=20)
+    validate.add_argument("--laya", nargs="?", const="hub", default=None,
+                          help="Also compare to pip-installed laya. Optional PATH is a pinned local snapshot.")
     validate.add_argument("--output", type=Path)
 
     bench = sub.add_parser("benchmark", help="Measure P50/P95 latency on this machine")
@@ -56,8 +58,10 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.command == "convert":
         from .convert import convert as run_convert
+        from .preflight import InsufficientResources, ReservedBundleName
 
-        run_convert(
+        try:
+            run_convert(
             args.source,
             args.output,
             max_length=args.max_length,
@@ -71,6 +75,9 @@ def main(argv=None):
             dynamic_sequence=not args.fixed_sequence,
             opset=args.opset,
         )
+        except (InsufficientResources, ReservedBundleName) as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
         return 0
     if args.command == "predict":
         from .agent import load
@@ -96,11 +103,32 @@ def main(argv=None):
             max_drift=args.max_drift,
             repeats=args.repeats,
         )
+        if args.laya is not None:
+            from .fidelity import OfficialLayaUnavailable, compare_official_laya
+
+            try:
+                report["laya_package"] = compare_official_laya(
+                    args.bundle,
+                    max_drift=args.max_drift,
+                    laya_source=None if args.laya == "hub" else args.laya,
+                )
+            except OfficialLayaUnavailable as exc:
+                print(str(exc), file=sys.stderr)
+                report["laya_package"] = {"available": False, "reason": str(exc)}
+                text = json.dumps(report, indent=2)
+                if args.output:
+                    args.output.write_text(text + "\n")
+                sys.stdout.write(text + "\n")
+                return 2
         text = json.dumps(report, indent=2)
         if args.output:
             args.output.write_text(text + "\n")
         sys.stdout.write(text + "\n")
-        return 0 if report.get("passed") else 1
+        laya_report = report.get("laya_package")
+        laya_ok = True
+        if isinstance(laya_report, dict) and "passed" in laya_report:
+            laya_ok = bool(laya_report["passed"])
+        return 0 if report.get("passed") and laya_ok else 1
     if args.command == "benchmark":
         from .bench import run_benchmark
 

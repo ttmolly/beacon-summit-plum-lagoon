@@ -122,11 +122,6 @@ def convert(
     ONNX Runtime dynamic quantization. INT8 is approximate and is refused as a
     default by the fidelity gate when it misses the drift budget.
     """
-    import numpy as np
-    import torch
-
-    from .torch_model import load_model
-
     output = Path(output).expanduser()
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite {output}")
@@ -137,6 +132,17 @@ def convert(
         raise ValueError("quantize must be None or 'int8'")
     if attention not in ("explicit", "sdpa"):
         raise ValueError("attention must be explicit or sdpa")
+
+    # Name reservation and RAM/disk, before Hub download and before torch.
+    from .preflight import guard_convert
+
+    guard_convert(source, output)
+
+    import numpy as np
+    import torch
+
+    from .torch_model import load_model
+
     if not Path(source).expanduser().is_dir() and revision is None:
         revision = SOURCE_REVISIONS.get(str(source).removeprefix("convaiinnovations/"))
 

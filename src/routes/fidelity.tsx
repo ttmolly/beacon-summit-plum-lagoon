@@ -36,10 +36,10 @@ function FidelityPage() {
 
   const rows = data
     ? [
-        { name: "moka-tiny FP32", ...data.fidelity_fp32, default: "yes" },
+        { name: "moka-tiny FP32", ...data.fidelity_fp32, default: "distilled, not Laya" },
         { name: "moka-tiny INT8", ...data.fidelity_int8, default: "no" },
         {
-          name: "laya 421M",
+          name: "models/typed 421M",
           matched: 0,
           total: 0,
           max_probability_drift: 0,
@@ -47,7 +47,29 @@ function FidelityPage() {
           stable: false,
           max_drift_budget: 0.0001,
           precision: "fp32",
-          default: "not converted (RAM)",
+          default: "refused, RAM",
+        },
+        {
+          name: "models/english 421M",
+          matched: 0,
+          total: 0,
+          max_probability_drift: 0,
+          passed: false,
+          stable: false,
+          max_drift_budget: 0.0001,
+          precision: "fp32",
+          default: "refused, RAM",
+        },
+        {
+          name: "models/multi 322M",
+          matched: 0,
+          total: 0,
+          max_probability_drift: 0,
+          passed: false,
+          stable: false,
+          max_drift_budget: 0.0001,
+          precision: "fp32",
+          default: "refused, RAM",
         },
       ]
     : [];
@@ -87,7 +109,7 @@ function FidelityPage() {
                 </td>
                 <td className="px-3 py-2 font-mono tabular-nums">{row.max_drift_budget}</td>
                 <td className="px-3 py-2">
-                  {row.name.includes("421M") ? (
+                  {row.total === 0 ? (
                     <Badge>not run</Badge>
                   ) : row.passed ? (
                     <Badge tone="ok">passed</Badge>

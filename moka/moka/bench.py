@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import os
 import platform
 import time
+from pathlib import Path
 
 import numpy as np
 
@@ -38,6 +40,58 @@ def hardware_report():
         "python": platform.python_version(),
         "gpu": None,
     }
+
+
+def process_rss_bytes():
+    try:
+        with open("/proc/self/status") as handle:
+            for line in handle:
+                if line.startswith("VmRSS:"):
+                    return int(line.split()[1]) * 1024
+                if line.startswith("VmHWM:"):
+                    pass
+    except OSError:
+        return None
+    return None
+
+
+def import_footprint():
+    """Cost of `import moka` in a fresh process. Must not pull in torch."""
+    import subprocess
+    import sys
+
+    code = (
+        "import json,sys,time\n"
+        "t=time.perf_counter()\n"
+        "import moka\n"
+        "dt=time.perf_counter()-t\n"
+        "rss=None\n"
+        "try:\n"
+        "    for line in open('/proc/self/status'):\n"
+        "        if line.startswith('VmRSS:'):\n"
+        "            rss=int(line.split()[1])*1024\n"
+        "except OSError:\n"
+        "    pass\n"
+        "json.dump({"
+        "'import_moka_s':dt,"
+        "'rss_bytes':rss,"
+        "'torch_imported':'torch' in sys.modules,"
+        "'transformers_imported':'transformers' in sys.modules,"
+        "'moka_version':moka.__version__"
+        "}, sys.stdout)\n"
+    )
+    root = Path(__file__).resolve().parents[1]
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(root) + os.pathsep + env.get("PYTHONPATH", "")
+    proc = subprocess.run(
+        [sys.executable, "-c", code],
+        check=True,
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=str(root),
+    )
+    return json.loads(proc.stdout)
 
 
 def percentile(samples, q):
@@ -101,6 +155,8 @@ def run_benchmark(
         "hardware": hardware_report(),
         "onnxruntime": ort.__version__,
         "energy": energy_report,
+        "rss_after_load_bytes": process_rss_bytes(),
+        "import_footprint": import_footprint(),
         "notes": [
             "Wall time includes prompt construction, tokenization, ORT session.run, calibration and formatting.",
             "Loading and warmup are excluded.",

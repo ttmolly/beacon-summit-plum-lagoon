@@ -2,7 +2,7 @@ import { i as __toESM } from "../_runtime.mjs";
 import { n as require_react } from "../_libs/@radix-ui/react-compose-refs+[...].mjs";
 import { R as require_jsx_runtime } from "../_libs/@tanstack/react-router+[...].mjs";
 import { a as Bar, i as CartesianGrid, n as YAxis, o as ResponsiveContainer, r as XAxis, s as Tooltip, t as BarChart } from "../_libs/recharts+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/benchmarks-DRMcRHuZ.js
+//#region node_modules/.nitro/vite/services/ssr/assets/benchmarks-BzTbphHb.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function BenchmarksPage() {
@@ -31,22 +31,19 @@ function BenchmarksPage() {
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 						className: "font-display text-3xl tracking-tight",
-						children: "Measured, not estimated"
+						children: "Official rows are empty"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 						className: "max-w-2xl text-sm leading-relaxed text-muted",
 						children: [
+							"The chart is moka-tiny, a distilled reference model, not Laya. Official laya versus Moka ORT CPU was not measured: the 421M and 322M bundles were refused on this host (",
 							data?.host.cpu,
 							", ",
 							data?.host.cores,
 							" cores, ",
 							(data ? data.host.ram_bytes / 1e9 : 0).toFixed(1),
 							" ",
-							"GB RAM, GPU none. Python ",
-							data?.host.python,
-							", ONNX Runtime ",
-							data?.onnxruntime,
-							". Wall time includes prompt, tokenize, session.run, calibration. Warmup excluded."
+							"GB RAM, no GPU, no swap). CUDA was not present. INT8 is not a default."
 						]
 					})
 				]
@@ -108,15 +105,15 @@ function BenchmarksPage() {
 				className: "grid gap-3 sm:grid-cols-3",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Metric, {
-						label: "ORT P50 / P95",
+						label: "Student ORT P50 / P95",
 						value: `${data.latency_ort.p50_ms.toFixed(2)} / ${data.latency_ort.p95_ms.toFixed(2)} ms`
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Metric, {
-						label: "Speedup vs eager",
+						label: "vs own eager",
 						value: `${data.speedup_vs_pytorch.toFixed(2)}×`
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Metric, {
-						label: "ORT decisions/s",
+						label: "Student decisions/s",
 						value: data.latency_ort.decisions_per_sec.toFixed(0)
 					})
 				]
@@ -135,7 +132,7 @@ function BenchmarksPage() {
 				className: "rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed text-muted",
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 					className: "font-medium text-fg",
-					children: "Snake loop"
+					children: "Snake loop (student)"
 				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 					className: "mt-2",
 					children: [
@@ -145,13 +142,13 @@ function BenchmarksPage() {
 						data.snake.interventions,
 						" safety interventions, ",
 						data.snake.decisions_per_sec.toFixed(1),
-						" decisions/s including inference. Terminal painting excluded."
+						" decisions/s including inference. Terminal painting excluded. Not a Laya policy claim."
 					]
 				})]
 			}),
 			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 				className: "text-xs text-subtle",
-				children: "Tiny student graph. A 421M number from this box would be fiction — the conversion did not fit in RAM. See docs/BENCHMARKS.md in the package."
+				children: "Official batch-1 P50, RSS, and bundle size versus Hub safetensors are blank until models/typed and models/english exist. Those directories were not created here."
 			})
 		]
 	});
